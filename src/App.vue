@@ -5,12 +5,26 @@
     <div class="container">
       <div class="header d-flex justify-content-between">
 
-        <div>
-          <h2>{{weatherData.name}}</h2>
+        <div class="header-city-block d-flex align-items-center" v-if="isCityBlockVisible">
+          <multiselect
+              :options="cityOptionList"
+              label="name"
+              :value="selectedCity"
+              placeholder="Выберите город"
+              selectLabel=""
+              deselectLabel=""
+              selectedLabel="Выбран"
+              @select="selectCity"
+          />
 
+          <h3 class="header-city-block-btn" @click="confirmCity">ok</h3>
+        </div>
+
+        <div v-else>
+          <h2>{{weatherData.name}}</h2>
           <div class="header-bottom d-flex align-items-center">
             <p class="header-change-city opacity"
-               @click="changeCity"
+               @click="clickChangeCity"
             >
               Сменить город
             </p>
@@ -98,8 +112,13 @@
   export default {
     name: 'App',
     components: { TheLoader },
+    data() {
+      return {
+        isCityBlockVisible: false,
+      }
+    },
     computed: {
-      ...mapState(['weatherData', 'isPreloaderVisible']),
+      ...mapState(['weatherData', 'isPreloaderVisible', 'selectedCity', 'cityOptionList']),
       countSide() {
         const deg = this.weatherData.wind.deg
         let degDescription = ''
@@ -138,7 +157,7 @@
           position => {
             const coords = position.coords
 
-            this.$store.commit('CHANGE_CITY_COORDS', {
+            this.$store.commit('CHANGE_SELECTED_CITY_COORDS', {
               lat: coords.latitude,
               lon: coords.longitude,
             })
@@ -150,8 +169,15 @@
           },
         )
       },
-      changeCity() {
-        console.log('ss')
+      clickChangeCity() {
+        this.isCityBlockVisible = true
+      },
+      confirmCity() {
+        this.fetchWeatherData()
+        this.isCityBlockVisible = false
+      },
+      selectCity(value) {
+        this.$store.commit('CHANGE_SELECTED_CITY', value)
       },
     },
     mounted() {
@@ -159,6 +185,8 @@
     },
   }
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style lang="scss">
   #app {
@@ -173,6 +201,21 @@
 
   .header {
     margin-top: 75px;
+
+    &-city-block {
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      background-color: $white;
+      color: $black;
+
+      &-btn {
+        cursor: pointer;
+        margin-left: 64px;
+        color: $blue;
+        text-transform: uppercase;
+      }
+    }
 
     &-bottom {
       margin-top: 9px;

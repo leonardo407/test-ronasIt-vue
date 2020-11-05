@@ -5,11 +5,13 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    cityCoords: {
-      lat: 45.0328,
-      lon: 38.9769,
-    },
-    API_KEY: '799b31d237458c762b4ea6d23f2e5d1c',
+    cityOptionList: [
+      { name: 'Краснодар', value: { lat: '45.0328', lon: '38.9769' } },
+      { name: 'Москва', value: { lat: '55.7522', lon: '37.6156' } },
+      { name: 'Омск', value: { lat: '55', lon: '73.4' } },
+      { name: 'Анапа', value: { lat: '44.8908', lon: '37.3239' } },
+    ],
+    selectedCity: { name: 'Краснодар', value: { lat: '45.0328', lon: '38.9769' } },
     units: 'metric',
     weatherData: {},
     isPreloaderVisible: false,
@@ -21,8 +23,11 @@ export default new Vuex.Store({
     CHANGE_UNITS_DATA(state, data) {
       state.units = data
     },
-    CHANGE_CITY_COORDS(state, data) {
-      state.cityCoords = data
+    CHANGE_SELECTED_CITY(state, data) {
+      state.selectedCity = data
+    },
+    CHANGE_SELECTED_CITY_COORDS(state, data) {
+      state.selectedCity.value = data
     },
     CHANGE_PRELOADER_VISIBLE(state, data) {
       state.isPreloaderVisible = data
@@ -34,7 +39,7 @@ export default new Vuex.Store({
 
       try {
         const res = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${state.cityCoords.lat}&lon=${state.cityCoords.lon}&appid=${state.API_KEY}&units=${state.units}&lang=ru`,
+          `https://api.openweathermap.org/data/2.5/weather?lat=${state.selectedCity.value.lat}&lon=${state.selectedCity.value.lon}&appid=${process.env.VUE_APP_API_KEY}&units=${state.units}&lang=ru`,
         )
         const data = await res.json()
 
